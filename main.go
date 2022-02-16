@@ -6,15 +6,27 @@ import (
 	"fmt"
 )
 
+/* Blockchain bloğumuzun üç ayrı alana sahip olması gerekecek.
+Birincisi, blok zincirinin ana satış noktası güvenliği olduğundan, biraz karmaya
+ihtiyacımız olacak. İkincisi, içinde bir şekilde korumaya veya muhafaza etmeye değer
+bazı veriler olmadıkça, hash'i kullanamazdık, bu nedenle bazı verilere de ihtiyacımız olacak.
+Son faktör, bloklarımızın birbirleriyle nasıl etkileşime girdiği olacaktır.*/
 type Block struct {
 	Hash     []byte
 	Data     []byte
 	PrevHash []byte
 }
+
+/*Bir blok zincirinin zinciri, basitçe bir blok gruplamasıdır.
+Yani bu bana bir dizi için güzel bir uygulama gibi geldi.*/
 type BlockChain struct {
 	blocks []*Block
 }
 
+/*Bloğuna verdiğimiz verileri hash etmenin başlamak için iyi bir yer olacağına inanıyorum.
+Bir bağımlılık zinciri oluşturmak için, bloktaki mevcut verileri ve üstümüzdeki bloktaki
+verileri hash edeceğiz. Blok zincirinin güvenilirliği, önceki bloğun bu karmasına bağlıdır.
+Bu bağlantı dizisi olmadan sistemin bütünlüğünü programlı olarak kontrol edemeyiz.*/
 func (b *Block) DeriveHash() {
 	info := bytes.Join([][]byte{b.Data, b.PrevHash}, []byte{})
 	// This will join our previous block hash with current block data
@@ -30,6 +42,9 @@ func CreateBlock(data string, prevHash []byte) *Block {
 	block.DeriveHash()
 	return block
 }
+
+/*Şimdi, her şeyi birbirine bağlamak için bir blok zincirine ihtiyacımız var.
+ */
 func (chain *BlockChain) AddBlock(data string) {
 	prevBlock := chain.blocks[len(chain.blocks)-1]
 	new := CreateBlock(data, prevBlock.Hash)
